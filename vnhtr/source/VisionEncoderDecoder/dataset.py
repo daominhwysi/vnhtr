@@ -4,31 +4,21 @@ from transformers import AutoTokenizer, TrOCRProcessor
 from PIL import Image
 
 class CustomDataset(Dataset):
-    def __init__(self, anot, config):
+    def __init__(self, df, config):
         super().__init__()
         self.tokenizer = AutoTokenizer.from_pretrained("vinai/bartpho-syllable-base")
-        self.processor = TrOCRProcessor.from_pretrained("microsoft/trocr-small-handwritten")
-        self.anot = anot
+        self.processor = TrOCRProcessor.from_pretrained("microsoft/trocr-large-handwritten")
         self.max_seq_len = config.max_seq_len
 
     def __len__(self):
         return len(self.anot)
 
     def __getitem__(self, idx):
-        sample = self.anot.iloc[idx]
-        fn = sample.filename
-
-        input_ids = self.tokenizer(str(sample.label), return_tensors='pt', padding='max_length', truncation=True, max_length=self.max_seq_len)
-
-        img_path = "augmented_images/" + fn
-        if fn[:4] == "wild":
-            img_path = "WildLine/" + fn
-        if fn[:5] == "digit":
-            img_path = "digits/" + fn
-        if fn[:6] == "single":
-            img_path = "single_digit/" + fn
-
-        image = Image.open(img_path).convert("RGB")
+        file_name = self.df['file_name'][idx]
+        # Check if 'text' is the correct column name, or if it should be something else, e.g., 'transcription'
+        text = self.df['label'][idx]
+        input_ids = self.tokenizer(str(text), return_tensors='pt', padding='max_length', truncation=True, max_length=self.max_seq_len)
+        image = Image.open(file_name).convert("RGB")
         pixel_values = self.processor(image, return_tensors="pt").pixel_values
 
         return {
