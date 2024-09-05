@@ -11,7 +11,7 @@ class CustomDataset(Dataset):
         self.max_seq_len = config.max_seq_len
 
     def __len__(self):
-        return len(self.anot)
+        return len(self.df)
 
     def __getitem__(self, idx):
         file_name = self.df['file_name'][idx]
