@@ -6,6 +6,7 @@ from PIL import Image
 class CustomDataset(Dataset):
     def __init__(self, df, config):
         super().__init__()
+        self.df = df
         self.tokenizer = AutoTokenizer.from_pretrained("vinai/bartpho-syllable-base")
         self.processor = TrOCRProcessor.from_pretrained("microsoft/trocr-large-handwritten")
         self.max_seq_len = config.max_seq_len
